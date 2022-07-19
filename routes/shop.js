@@ -8,10 +8,7 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   const products = adminData.products;
-  // this approach goes for sending an HTML page from server
-  // res.sendFile(path.join(rootDir, 'views', 'shop.html'));
 
-  // this approach goes for sending an pag/handlebars tamplate converted in HTML page from server
   res.render('shop', {
     prods: products,
     pageTitle: 'Shop',
