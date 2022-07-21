@@ -1,28 +1,12 @@
 const express = require('express');
 const path = require('path');
 
-const rootDir = require('../utils/path');
-
+const productsController = require('../controllers/products');
 const router = express.Router();
 
-const products = [];
+router.get('/add-product', productsController.getAddProdact);
 
-router.get('/add-product', (req, res, next) => {
-  res.render('add-product', {
-    pageTitle: 'Add Products',
-    path: '/admin/add-product',
-    // use this options only in Hbs engine
-    formsCSS: true,
-    productCSS: true,
-    activeAddProduct: true,
-  });
-});
-
-router.post('/add-product', (req, res) => {
-  products.push({ title: req.body.title });
-  res.redirect('/');
-});
+router.post('/add-product', productsController.postAddProduct);
 
 // module.exports = router;
-exports.routes = router;
-exports.products = products;
+module.exports = router;
