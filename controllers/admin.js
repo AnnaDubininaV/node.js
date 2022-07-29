@@ -1,6 +1,6 @@
 const Product = require('../models/product');
 
-exports.getAddProdact = (req, res, next) => {
+exports.getAddProduct = (req, res, next) => {
   // relative path to /views fofled
   res.render('admin/add-product', {
     pageTitle: 'Add Products',
@@ -20,14 +20,10 @@ exports.postAddProduct = (req, res) => {
 
 exports.getProducts = (req, res, next) => {
   Product.fetchAll((products) => {
-    res.render('shop/product-list', {
+    res.render('admin/products', {
       prods: products,
-      pageTitle: 'Shop',
-      path: '/',
-      // use this options only in Hbs engine
-      activeShop: true,
-      productCSS: true,
-      hasProducts: products.length > 0,
+      pageTitle: 'Admin Products',
+      path: '/admin/products',
     });
   });
 };
