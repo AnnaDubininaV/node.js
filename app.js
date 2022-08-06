@@ -21,8 +21,19 @@ const shopRoutes = require('./routes/shop');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/admin', adminRoutes);
+// registers a middleware function for incoming requests
+app.use((req, res, next) => {
+  User.findByPk(1)
+    .then((user) => {
+      // at this point user is sequelized object with all sequelise methodth in it
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.log(err));
+});
+
 app.use(shopRoutes);
+app.use('/admin', adminRoutes);
 
 app.use(errorController.get404);
 
@@ -31,10 +42,23 @@ app.use(errorController.get404);
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
 
+// npm start - runs the following lines
 sequelize
-  .sync({ force: true })
+  //   .sync({ force: true })
+  .sync()
   .then((result) => {
+    return User.findByPk(1);
     // console.log(result);
+  })
+  .then((user) => {
+    // if !user we create dummy user
+    if (!user) {
+      User.create({ name: 'Ana', email: 'test@test,com' });
+    }
+    return user;
+  })
+  .then((user) => {
+    console.log(user);
     app.listen(3000);
   })
   .catch((err) => console.log(err));
