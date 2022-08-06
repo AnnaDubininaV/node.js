@@ -9,6 +9,8 @@ const sequelize = require('./utils/database');
 // define existing models
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 const app = express();
 
@@ -41,6 +43,13 @@ app.use(errorController.get404);
 // second arg - how this relation should be managed
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+User.hasOne(Cart);
+// will add a foreingKey, new field userId to the cart
+Cart.belongsTo(User);
+// n:m relationship (one cart can hold multiple products)
+Cart.belongsToMany(Product, { through: CartItem });
+// n:m (single product can be added to multiple cars)
+Product.belongsToMany(Cart, { through: CartItem });
 
 // npm start - runs the following lines
 sequelize
@@ -59,6 +68,9 @@ sequelize
   })
   .then((user) => {
     console.log(user);
+    return user.createCart();
+  })
+  .then((cart) => {
     app.listen(3000);
   })
   .catch((err) => console.log(err));
