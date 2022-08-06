@@ -4,6 +4,9 @@ const bodyParser = require('body-parser');
 
 const errorController = require('./controllers/error');
 
+// the pool, which allows us to use a connection in it
+const db = require('./utils/database');
+
 const app = express();
 
 app.set('view engine', 'ejs');
