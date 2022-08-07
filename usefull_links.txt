@@ -16,3 +16,7 @@ Express Routing Docs: https://expressjs.com/en/guide/routing.html
 
 Learn more about MySQL/ SQL in General: https://www.w3schools.com/sql/
 Learn more about the Node MySQL Package: https://github.com/sidorares/node-mysql2
+
+Sequelize Official Docs (package for working with MySQL): http://docs.sequelizejs.com/
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
