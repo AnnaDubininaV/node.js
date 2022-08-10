@@ -16,6 +16,11 @@ class Product {
     // })
     // .catch((err) => console.log(err));
   }
+
+  static fetchAll() {
+    const db = getDB();
+    return db.collection('products').find().toArray();
+  }
 }
 
 module.exports = Product;
