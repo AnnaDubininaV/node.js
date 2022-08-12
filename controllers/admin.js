@@ -58,22 +58,15 @@ exports.postEditProduct = async (req, res, next) => {
     .catch((err) => console.log(err));
 };
 
-// exports.postDeleteProduct = (req, res, next) => {
-//   const productId = req.params.productId;
-//   Product.destroy({ where: { id: productId } })
-//     .then(() => {
-//       res.redirect('/admin/products');
-//     })
-//     .catch((err) => console.log(err));
-
-//   // Product.findByPk(productId)
-//   //   .then((product) => product.destroy())
-//   //   .then(() => {
-//   //     console.log('DESTROYED PRODUCT');
-//   //     res.redirect('/admin/products');
-//   //   })
-//   //   .catch((err) => console.log(err));
-// };
+exports.postDeleteProduct = (req, res, next) => {
+  const productId = req.params.productId;
+  Product.deleteById(productId)
+    .then(() => {
+      console.log('delete product...');
+      res.redirect('/admin/products');
+    })
+    .catch((err) => console.log(err));
+};
 
 exports.getProducts = async (req, res, next) => {
   Product.fetchAll()
