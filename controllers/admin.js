@@ -54,10 +54,14 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = async (req, res, next) => {
   const { productId, title, price, imageUrl, description } = req.body;
 
-  const product = new Product(title, price, description, imageUrl, productId);
-
-  product
-    .save()
+  Product.findById(productId)
+    .then((product) => {
+      product.title = title;
+      product.price = price;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      return product.save();
+    })
     .then(() => {
       res.redirect('/admin/products');
     })
