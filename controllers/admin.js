@@ -75,7 +75,7 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
     .then((products) => {
       res.render('admin/products', {
         prods: products,
