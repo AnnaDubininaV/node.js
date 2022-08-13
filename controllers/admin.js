@@ -81,6 +81,10 @@ exports.postDeleteProduct = (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
   Product.find()
+    // .select('') - selects all passed fields
+    // we can get whole user object using .populate() method
+    // it will store user object to the userId field
+    .populate('userId', 'name')
     .then((products) => {
       res.render('admin/products', {
         prods: products,
