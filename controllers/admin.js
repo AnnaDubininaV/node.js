@@ -6,10 +6,6 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Products',
     path: '/admin/add-product',
     editing: false,
-    // use this options only in Hbs engine
-    // formsCSS: true,
-    // productCSS: true,
-    // activeAddProduct: true,
   });
 };
 
