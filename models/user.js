@@ -6,7 +6,7 @@ class User {
   constructor(userName, email, cart, id) {
     this.name = userName;
     this.email = email;
-    this.cart = cart || this.defaultCart; // {items: []}
+    this.cart = cart || { ...this.defaultCart }; // {items: []}
     this._id = id;
   }
 
@@ -74,6 +74,24 @@ class User {
         { _id: new mongoDB.ObjectId(this._id) },
         { $set: { cart: { items: updatedCartItems } } }
       );
+  }
+
+  addOrder() {
+    const db = getDB();
+
+    return db
+      .collection('orders')
+      .insertOne(this.cart)
+      .then((result) => {
+        this.cart = { ...this.defaultCart };
+
+        return db
+          .collection('users')
+          .updateOne(
+            { _id: new mongoDB.ObjectId(this._id) },
+            { $set: { cart: { ...this.defaultCart } } }
+          );
+      });
   }
 
   static findById(userId) {
