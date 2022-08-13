@@ -1,9 +1,11 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const errorController = require('./controllers/error');
-const { mongoConnect } = require('./utils/database');
+
+const { CLUSTER_NAME, USER_NAME, PASSWORD } = require('./utils/databaseConfig');
 
 const User = require('./models/user');
 
@@ -33,6 +35,13 @@ app.use('/admin', adminRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect(() => {
-  app.listen(3000);
-});
+const connectionUrl = `mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.aonfkqn.mongodb.net/shop?retryWrites=true&w=majority`;
+
+mongoose
+  .connect(connectionUrl)
+  .then(() => {
+    app.listen(3000);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
