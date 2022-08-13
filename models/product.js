@@ -39,9 +39,21 @@ class Product {
 
   static deleteById(productId) {
     const db = getDB();
-    return db.collection('products').deleteOne({
-      _id: new mongoDB.ObjectId(productId),
-    });
+    return db
+      .collection('products')
+      .deleteOne({
+        _id: new mongoDB.ObjectId(productId),
+      })
+      .then((result) => {
+        return db.collection('users').updateMany(
+          {},
+          {
+            $pull: {
+              'cart.items': { productId: new mongoDB.ObjectId(productId) },
+            },
+          }
+        );
+      });
   }
 }
 
