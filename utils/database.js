@@ -1,13 +1,34 @@
-const { Sequelize } = require('sequelize');
+const mongodb = require('mongodb');
 
 const dbConfig = require('./databaseConfig');
 
-const { HOST, USER, DB_NAME, PASSWORD } = dbConfig;
+const { CLUSTER_NAME, USER_NAME, PASSWORD } = dbConfig;
 
-// this will set up a connection pool under the hood with a fully configured sequelize environment
-const sequelize = new Sequelize(DB_NAME, USER, PASSWORD, {
-  dialect: 'mysql',
-  host: HOST,
-});
+// extracting mongoDB client constructor
+const MongoClient = mongodb.MongoClient;
 
-module.exports = sequelize;
+const connectionUrl = `mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.aonfkqn.mongodb.net/shop?retryWrites=true&w=majority`;
+let _db;
+
+const mongoConnect = (cb) => {
+  MongoClient.connect(connectionUrl)
+    .then((client) => {
+      console.log('Connected!!!!!!!!');
+      _db = client.db();
+      cb();
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+const getDB = () => {
+  if (_db) {
+    return _db;
+  }
+  throw 'No database found';
+};
+
+module.exports.mongoConnect = mongoConnect;
+module.exports.getDB = getDB;

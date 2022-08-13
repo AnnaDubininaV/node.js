@@ -4,8 +4,9 @@ const Product = require('../models/product');
 
 exports.getProducts = (req, res, next) => {
   // TODO refactore this method along with getIndex
-  Product.findAll()
+  Product.fetchAll()
     .then((products) => {
+      console.log(products);
       res.render('shop/product-list', {
         prods: products,
         pageTitle: 'All Products',
@@ -17,9 +18,7 @@ exports.getProducts = (req, res, next) => {
 
 exports.getProduct = (req, res, next) => {
   const prodId = req.params.productId;
-  // Just another approach to get the data
-  // Product.findAll({ where: { id: prodId } })
-  Product.findByPk(prodId)
+  Product.findById(prodId)
     .then((product) => {
       // const product = products[0];
       res.render('shop/product-detail', {
@@ -32,7 +31,7 @@ exports.getProduct = (req, res, next) => {
 };
 
 exports.getIndex = (req, res, next) => {
-  Product.findAll()
+  Product.fetchAll()
     .then((products) => {
       res.render('shop/index', {
         prods: products,
@@ -52,66 +51,35 @@ exports.getIndex = (req, res, next) => {
 exports.getCart = (req, res, next) => {
   req.user
     .getCart()
-    .then((cart) => {
-      cart
-        .getProducts()
-        .then((cartProducts) => {
-          res.render('shop/cart', {
-            path: '/cart',
-            pageTitle: 'Your Cart',
-            products: cartProducts,
-          });
-        })
-        .catch((err) => console.log(err));
+    .then((products) => {
+      res.render('shop/cart', {
+        path: '/cart',
+        pageTitle: 'Your Cart',
+        products,
+      });
     })
     .catch((err) => console.log(err));
 };
 
 exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
-  let fetchedCart;
-  let newQuantity = 1;
-
-  req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts({ where: { id: prodId } });
-    })
-    .then((products) => {
-      const product = products?.[0];
-
-      if (product) {
-        const oldQuantity = product.cartItem.quantity;
-        newQuantity = oldQuantity + 1;
-      }
-
-      return Product.findByPk(prodId)
-        .then((product) => {
-          return fetchedCart.addProduct(product, {
-            through: { quantity: newQuantity },
-          });
-        })
-        .catch((err) => console.log(err));
+  Product.findById(prodId)
+    .then((product) => {
+      req.user.addToCart(product._id);
     })
     .then(() => {
       res.redirect('/cart');
     })
-    .catch((err) => console.log(err));
+    .catch((error) => {
+      console.log(error);
+    });
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
   const productId = req.body.productId;
 
   req.user
-    .getCart()
-    .then((cart) => {
-      return cart.getProducts({ where: { id: productId } });
-    })
-    .then((products) => {
-      const product = products[0];
-      product.cartItem.destroy();
-    })
+    .deleteItemFromCart(productId)
     .then(() => {
       res.redirect('/cart');
     })
@@ -119,30 +87,8 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
   req.user
-    .getCart()
-    .then((cart) => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then((products) => {
-      console.log(products);
-      return req.user
-        .createOrder()
-        .then((order) => {
-          return order.addProducts(
-            products.map((product) => {
-              product.orderItem = { quantity: product.cartItem.quantity };
-              return product;
-            })
-          );
-        })
-        .catch((err) => console.log(err));
-    })
-    .then((result) => {
-      return fetchedCart.setProducts(null);
-    })
+    .addOrder()
     .then((result) => {
       res.redirect('/orders');
     })
@@ -151,7 +97,7 @@ exports.postOrder = (req, res, next) => {
 
 exports.getOrders = (req, res, next) => {
   req.user
-    .getOrders({ include: ['products'] })
+    .getOrders()
     .then((orders) => {
       res.render('shop/orders', {
         path: '/orders',
