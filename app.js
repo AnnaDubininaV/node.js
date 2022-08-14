@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require('connect-mongodb-session')(session);
 
 const errorController = require('./controllers/error');
 
@@ -9,20 +11,40 @@ const { CLUSTER_NAME, USER_NAME, PASSWORD } = require('./utils/databaseConfig');
 
 const User = require('./models/user');
 
+const MONGODB_URI = `mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.aonfkqn.mongodb.net/shop?retryWrites=true&w=majority`;
+
 const app = express();
+
+// initialize a new store
+// the session will always be stored in shop DB
+const store = new MongoDBStore({
+  uri: MONGODB_URI,
+  collection: 'sessions',
+});
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false,
+    store,
+  })
+);
 
-// registers a middleware function for incoming requests
 app.use((req, res, next) => {
-  User.findById('62f80b8d97397b9bdb8c29f2')
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
       next();
@@ -31,14 +53,13 @@ app.use((req, res, next) => {
 });
 
 app.use(shopRoutes);
+app.use(authRoutes);
 app.use('/admin', adminRoutes);
 
 app.use(errorController.get404);
 
-const connectionUrl = `mongodb+srv://${USER_NAME}:${PASSWORD}@${CLUSTER_NAME}.aonfkqn.mongodb.net/shop?retryWrites=true&w=majority`;
-
 mongoose
-  .connect(connectionUrl)
+  .connect(MONGODB_URI)
   .then(() => {
     User.findOne().then((user) => {
       if (!user) {
