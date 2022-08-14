@@ -20,16 +20,30 @@ exports.getSignup = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
-  // an example of setting cookies
-  // res.setHeader('Set-Cookie', 'loggedIn=true');
-  User.findById('62f80b8d97397b9bdb8c29f2')
+  const { email, password } = req.body;
+
+  User.findOne({ email })
     .then((user) => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save((err) => {
-        console.log(err);
-        res.redirect('/');
-      });
+      if (!user) {
+        return res.redirect('/login');
+      }
+      bcrypt
+        .compare(password, user.password)
+        .then((doMatch) => {
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.log(err);
+              res.redirect('/');
+            });
+          }
+          return res.redirect('/login');
+        })
+        .catch((err) => {
+          console.log(err);
+          res.redirect('login');
+        });
     })
     .catch((err) => console.log(err));
 };
