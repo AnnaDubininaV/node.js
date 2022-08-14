@@ -1,6 +1,10 @@
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
+  if (!req.session.isLoggedIn) {
+    return res.redirect('/');
+  }
+
   // relative path to /views fofled
   res.render('admin/edit-product', {
     pageTitle: 'Add Products',
