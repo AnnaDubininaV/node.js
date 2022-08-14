@@ -6,23 +6,19 @@ exports.getAddProduct = (req, res, next) => {
     pageTitle: 'Add Products',
     path: '/admin/add-product',
     editing: false,
-    // use this options only in Hbs engine
-    // formsCSS: true,
-    // productCSS: true,
-    // activeAddProduct: true,
   });
 };
 
 exports.postAddProduct = (req, res) => {
   const { title, imageUrl, price, description } = req.body;
-  const product = new Product(
+  const product = new Product({
     title,
     price,
     description,
     imageUrl,
-    null,
-    req.user._id
-  );
+    userId: req.user,
+  });
+
   product
     .save()
     .then((result) => {
@@ -55,10 +51,14 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = async (req, res, next) => {
   const { productId, title, price, imageUrl, description } = req.body;
 
-  const product = new Product(title, price, description, imageUrl, productId);
-
-  product
-    .save()
+  Product.findById(productId)
+    .then((product) => {
+      product.title = title;
+      product.price = price;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      return product.save();
+    })
     .then(() => {
       res.redirect('/admin/products');
     })
@@ -67,7 +67,7 @@ exports.postEditProduct = async (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   const productId = req.params.productId;
-  Product.deleteById(productId)
+  Product.findByIdAndRemove(productId)
     .then(() => {
       console.log('delete product...');
       res.redirect('/admin/products');
@@ -76,7 +76,11 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = async (req, res, next) => {
-  Product.fetchAll()
+  Product.find()
+    // .select('') - selects all passed fields
+    // we can get whole user object using .populate() method
+    // it will store user object to the userId field
+    .populate('userId', 'name')
     .then((products) => {
       res.render('admin/products', {
         prods: products,

@@ -25,4 +25,6 @@ MongoDB Official Docs: https://docs.mongodb.com/manual/core/security-encryption-
 
 SQL vs NoSQL: https://academind.com/learn/web-dev/sql-vs-nosql/
 
+Mongoose Official Docs: https://mongoosejs.com/docs/
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
