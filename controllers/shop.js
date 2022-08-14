@@ -1,6 +1,7 @@
 const { render } = require('express/lib/response');
 
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
   // TODO refactore this method along with getIndex
@@ -67,7 +68,7 @@ exports.postCart = (req, res, next) => {
 
   Product.findById(prodId)
     .then((product) => {
-      req.user.addToCart(product._id);
+      return req.user.addToCart(product._id);
     })
     .then(() => {
       res.redirect('/cart');
@@ -90,7 +91,24 @@ exports.postCartDeleteProduct = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
   req.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .then((user) => {
+      const products = user.cart.items.map((cartItem) => ({
+        quantity: cartItem.quantity,
+        product: { ...cartItem.productId._doc },
+      }));
+      const order = new Order({
+        user: {
+          name: req.user.name,
+          userId: req.user,
+        },
+        products,
+      });
+      return order.save();
+    })
+    .then((result) => {
+      return req.user.clearCart();
+    })
     .then((result) => {
       res.redirect('/orders');
     })
