@@ -7,7 +7,7 @@ exports.getLogin = (req, res, next) => {
   res.render('auth/login', {
     path: '/login',
     pageTitle: 'Login',
-    isLoggedIn: false,
+    errorMessage: req.flash('error')?.[0],
   });
 };
 
@@ -15,7 +15,6 @@ exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    isLoggedIn: false,
   });
 };
 
@@ -25,6 +24,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (!user) {
+        req.flash('error', 'Invalid emai or password.');
         return res.redirect('/login');
       }
       bcrypt
