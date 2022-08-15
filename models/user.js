@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: { type: String, required: true },
   email: { type: String, required: true },
+  password: { type: String, required: true },
   cart: {
     items: [
       {
@@ -44,9 +44,6 @@ userSchema.methods.addToCart = function (productId) {
 };
 
 userSchema.methods.removeFromCart = function (productId) {
-  console.log(productId, 'prodId from model');
-  console.log(this.cart.items, 'this.cart.items');
-
   const updatedCartItems = this.cart.items.filter(
     (cartItem) => cartItem.productId.toString() !== productId.toString()
   );
