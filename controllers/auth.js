@@ -15,6 +15,7 @@ exports.getSignup = (req, res, next) => {
   res.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
+    errorMessage: req.flash('error')?.[0],
   });
 };
 
@@ -54,6 +55,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email })
     .then((userDoc) => {
       if (userDoc) {
+        req.flash('error', 'E-mail is already in use!');
         return res.redirect('/signup');
       }
 
